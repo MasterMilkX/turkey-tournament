@@ -606,14 +606,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0.8503309, b: 0, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 7848ef1f94be04fd6a45a0b155230bea, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 200c312308cf54cb3b0b820a8e96a1a0, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -961,7 +961,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.2028302, g: 0.31604993, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2008,7 +2008,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Player 1 Wins!
+  m_Text: Player ? Wins!
 --- !u!222 &1172489256
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2067,14 +2067,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.34577656, g: 1, b: 0, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 7848ef1f94be04fd6a45a0b155230bea, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 200c312308cf54cb3b0b820a8e96a1a0, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -2456,14 +2456,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.8207547, g: 0.2981043, b: 0.2981043, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 7848ef1f94be04fd6a45a0b155230bea, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 200c312308cf54cb3b0b820a8e96a1a0, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -2968,8 +2968,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3230fdedfc0da468d81b42f9882995b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numPlayers: 1
-  activatedPlayers: 01010101
+  numPlayers: 2
+  activatedPlayers: 01000100
   pColors:
   - {r: 0.82, g: 0.3, b: 0.3, a: 1}
   - {r: 0.2, g: 0.32, b: 1, a: 1}
@@ -2981,7 +2981,7 @@ MonoBehaviour:
   - Map2
   - Map3
   gameMap: Map1
-  vsScores: 04000000010000000200000005000000
+  vsScores: 01000000000000000300000000000000
   teamScore: 100
   legitGame: 0
 --- !u!4 &1779398591

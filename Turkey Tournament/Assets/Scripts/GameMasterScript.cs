@@ -13,7 +13,7 @@ public class GameMasterScript : MonoBehaviour
     public int globalScore = 0;
     public int[] playerScore = {0, 0, 0, 0};
     public int maxCountDown = 100;
-    public int timeCountDown = 100;
+    private int timeCountDown = 100;
 
     public int startCountdown = 3;
     private Text countdownText;
@@ -39,6 +39,7 @@ public class GameMasterScript : MonoBehaviour
     private Text[] playerScoreText = new Text[4];
     private Text timeText;
     private Text pauseText;
+    private Text finishText;
 
     [Header("Key Controls")]
     // Keep these hardcoded so that a keyboard press can change it
@@ -96,8 +97,10 @@ public class GameMasterScript : MonoBehaviour
 
             pauseText = GUI.Find("PauseText").GetComponent<Text>();
             pauseText.gameObject.SetActive(false);
-        }
 
+            finishText = GUI.Find("FinishText").GetComponent<Text>();
+            finishText.gameObject.SetActive(false);
+        }
 
         StartCoroutine(GameStart());
     }
@@ -119,7 +122,7 @@ public class GameMasterScript : MonoBehaviour
 
         // check if the countdown is over
         if(timeCountDown <= 0 && gameState != "Game Over"){
-            GameOver();
+            StartCoroutine(GameOver());
         }
 
         // update the GUI
@@ -151,12 +154,7 @@ public class GameMasterScript : MonoBehaviour
         StartCoroutine(CountDown());        // start the countdown
 
         // reset the feathers
-        Transform[] allFeathSpawns = featherSpawns.GetComponentsInChildren<Transform>();
-        for(int i = 0; i < allFeathSpawns.Length; i++){
-            if(allFeathSpawns[i].childCount > 0){
-                Destroy(allFeathSpawns[i].GetChild(0).gameObject);
-            }
-        }
+        RemoveFeathers();       // remove all feathers  
         StartCoroutine(SpawnFeathers());    // start spawning feathers
 
         ResumeGame();       // resume the game
@@ -184,6 +182,7 @@ public class GameMasterScript : MonoBehaviour
         }
     }
 
+    // start the game with a countdown at the beginning
     IEnumerator GameStart(){
         while(startCountdown > 0){
             countdownText.text = startCountdown.ToString();
@@ -196,12 +195,21 @@ public class GameMasterScript : MonoBehaviour
         ResetGame();
     }
 
-    public void GameOver(){
+    // end the game
+    IEnumerator GameOver(){
         // end the game
-        Time.timeScale = 0;
+        //Time.timeScale = 0;
+        RemoveFeathers();
+        finishText.gameObject.SetActive(true);
         gameState = "Game Over";
         Debug.Log("Game Over");
-        StopAllCoroutines();
+        yield return new WaitForSeconds(2);
+
+        // update the values and go to the win screen
+        gameData.teamScore = globalScore;
+        gameData.vsScores = playerScore;
+        Debug.Log("WinScreen");
+        UnityEngine.SceneManagement.SceneManager.LoadScene("WinScreen");
     }
 
     /// =============   SCORING  ============= ///
@@ -211,7 +219,10 @@ public class GameMasterScript : MonoBehaviour
             globalScore += 1;           // increase the global score
         }else if(gameMode == 1){
             int player_num = Int32.Parse(player.ElementAt(player.Length-1).ToString())-1;
-            playerScore[player_num] += 1;       // increase the player's score
+            if(player_num == -1)
+                playerScore[UnityEngine.Random.Range(1, 4)] += 1;       // increase a random player's score
+            else
+                playerScore[player_num] += 1;       // increase the player's score
         }
     }
 
@@ -239,14 +250,14 @@ public class GameMasterScript : MonoBehaviour
         }
     }
 
+
     // add a feather to the game
     public void AddFeather(){
         // get the spawn positions without feathers
         List<Transform> emptySpawns = new List<Transform>();
-        Transform[] allFeathSpawns = featherSpawns.GetComponentsInChildren<Transform>();
-        for(int i = 0; i < allFeathSpawns.Length; i++){
-            if(allFeathSpawns[i].childCount == 0){
-                emptySpawns.Add(allFeathSpawns[i]);
+        foreach(Transform child in featherSpawns){
+            if(child.childCount == 0){
+                emptySpawns.Add(child);
             }
         }
         if (emptySpawns.Count == 0) return; // no empty spawns
@@ -261,6 +272,15 @@ public class GameMasterScript : MonoBehaviour
     }
 
 
+    // remove all feathers from the game
+    void RemoveFeathers(){
+        Transform[] allFeathSpawns = featherSpawns.GetComponentsInChildren<Transform>();
+        for(int i = 0; i < allFeathSpawns.Length; i++){
+            if(allFeathSpawns[i].childCount > 0){
+                Destroy(allFeathSpawns[i].GetChild(0).gameObject);
+            }
+        }
+    }
 
 
     /// =============   GUI  ============= ///

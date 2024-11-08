@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
@@ -85,6 +86,7 @@ public class WinScreen : MonoBehaviour
 
                 // set the player rankings
                 int[] playerRanks = GetPlayerRankings();
+                //Debug.Log("Player Ranks: " + string.Join(", ", playerRanks));
                 string[] places = {"1st", "2nd", "3rd", "4th"};
 
                 Transform psprites = GUIPanel.Find("PlayerSprites");
@@ -96,9 +98,23 @@ public class WinScreen : MonoBehaviour
                     if(playerRanks[i] == 1){
                         psprites.Find(places[0]+"Place").GetComponent<Image>().color = gameData.pColors[i];
                         GUIPanel.Find("WinnerText").GetComponent<Text>().text = "Player " + (i+1) + " Wins!";
-                    } else{
-                        losers.Find(places[playerRanks[i]-1]+"Place").GetComponent<Image>().color = gameData.pColors[i];
+                    } 
+                    // 2nd, 3rd, 4th place players
+                    else{
+                        if(!gameData.activatedPlayers[i]){
+                            losers.Find(places[playerRanks[i]-1]+"Place").gameObject.SetActive(false);
+                        }else{
+                            losers.Find(places[playerRanks[i]-1]+"Place").gameObject.SetActive(true);
+                            losers.Find(places[playerRanks[i]-1]+"Place").GetComponent<Image>().color = gameData.pColors[i];
+                            //Debug.Log(places[playerRanks[i]-1]+"Place -> " + gameData.pColors[i] + " -> " + i);
+                        }
                     }
+                }
+
+                // shift the transform over for less players
+                if(gameData.numPlayers < 4){
+                    Vector2 pos = losers.localPosition;
+                    losers.localPosition = new Vector2(pos.x + (4-gameData.numPlayers)*175, pos.y);
                 }
             }
         }
@@ -169,6 +185,10 @@ public class WinScreen : MonoBehaviour
                 if(gameData.vsScores[i] < gameData.vsScores[j]){
                     rank++;
                 }
+            }
+            // next rank up
+            while(playerRanks.ToList<int>().Contains(rank) && rank < 4){
+                rank++;
             }
             playerRanks[i] = rank;
         }

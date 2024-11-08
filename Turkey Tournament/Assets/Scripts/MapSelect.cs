@@ -114,11 +114,11 @@ public class MapSelect : MonoBehaviour
         gameData.gameMap = gameData.allMaps[selectedMap];
         Debug.Log("Game Map: " + selectedMap);
 
-        // TODO: load the next scene based on the map selection
-        //UnityEngine.SceneManagement.SceneManager.LoadScene("MapSelect");
+        // load the next scene based on the map selection
+        UnityEngine.SceneManagement.SceneManager.LoadScene(gameData.allMaps[selectedMap]);
 
         // use the demo for now
-        UnityEngine.SceneManagement.SceneManager.LoadScene("DemoLevel");
+        //UnityEngine.SceneManagement.SceneManager.LoadScene("DemoLevel");
     }
 
     // Countdown the player selection screen before moving to the next scene

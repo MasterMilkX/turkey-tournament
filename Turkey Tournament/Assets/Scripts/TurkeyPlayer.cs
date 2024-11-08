@@ -10,6 +10,7 @@ public class TurkeyPlayer : MonoBehaviour
     // private variables
     private Rigidbody2D rb;
     private Transform bottom;
+    private TrailRenderer trail;
     private GameMasterScript master_script;
     private GameData gameData;
     private bool jumped;
@@ -48,6 +49,8 @@ public class TurkeyPlayer : MonoBehaviour
     void Start(){
         rb = transform.GetComponent<Rigidbody2D>();
         sprRend = transform.GetComponent<SpriteRenderer>(); // get the sprite renderer
+        trail = transform.GetComponent<TrailRenderer>();
+        trail.emitting = false; 
         baseColor = sprRend.color;
         //bottom = transform.Find("bottom");
         master_script = GameObject.Find("MasterController").GetComponent<GameMasterScript>();
@@ -141,10 +144,13 @@ public class TurkeyPlayer : MonoBehaviour
         boosted = true;
         canBoost = false;
         sprRend.color = boostColor;
+        trail.emitting = true;
+        
         yield return new WaitForSeconds(0.3f);
         float gray = (baseColor.r + baseColor.g + baseColor.b) / 3;
         sprRend.color = new Color(gray,gray,gray);
         boosted = false;
+        trail.emitting = false;
         yield return new WaitForSeconds(2.0f);
         sprRend.color = baseColor;
         canBoost = true;
