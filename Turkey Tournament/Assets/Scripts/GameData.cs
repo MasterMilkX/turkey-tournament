@@ -21,6 +21,12 @@ public class GameData : MonoBehaviour
     public string[] allMaps = {"Map1", "Map2", "Map3"};
     public string gameMap = "Map1";     // default map
 
+    // final scores
+    public int[] vsScores = {0, 0, 0, 0};
+    public int teamScore = 0;
+
+    public bool legitGame = false;      // whether to save the scores to the leaderboard
+
     // makes the game data persist between scenes
     void Awake() {
         // new copy
@@ -33,4 +39,16 @@ public class GameData : MonoBehaviour
             Destroy(transform.gameObject);
         }
     }
+
+    // resets the game data for a new round
+    public void NewRound(){
+        vsScores = new int[] {0, 0, 0, 0};
+        teamScore = 0;
+        gameMap = allMaps[Random.Range(0, allMaps.Length)];
+        gameMode = 0;
+        numPlayers = 1;
+        activatedPlayers = new bool[]{true, false, false, false};
+        legitGame = true;
+    }
+
 }

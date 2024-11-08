@@ -12,6 +12,7 @@ public class MapSelect : MonoBehaviour
 
     public int selectedMap = 0;
     private Image[] mapImages;
+    private bool changedMap = false;
 
     public int countdown = 20;  // countdown timer
     private Transform countdownText;    // countdown text
@@ -48,36 +49,34 @@ public class MapSelect : MonoBehaviour
     void Update(){
         // player 1 selects the game mode 
         // TODO: Change this to controller input
-        if(Input.GetKeyDown(KeyCode.LeftArrow)){
+       if(Input.GetAxis("Hor1") < 0 && !changedMap){
             selectedMap -= 1;
             if(selectedMap < 0){
                 selectedMap = 2;
             }
             ChangeMap();
         }
-        else if(Input.GetKeyDown(KeyCode.RightArrow)){
+        else if(Input.GetAxis("Hor1") > 0 && !changedMap){
             selectedMap += 1;
             if(selectedMap > 2){
                 selectedMap = 0;
             }
             ChangeMap();
+        }else if(Input.GetAxis("Hor1") == 0){
+            changedMap = false;
         }
-        else if(Input.GetKeyDown(KeyCode.Space)){
+        
+        if(Input.GetButtonDown("Start1")){
             SelectMap();
         }
 
-         // if any input from the controller is detected, make the player hop
-        if(Input.GetKeyDown(KeyCode.Alpha1) && gameData.numPlayers >= 1){
-            StartCoroutine(PlayerHop(1));
-        }
-        if(Input.GetKeyDown(KeyCode.Alpha2) && gameData.numPlayers >= 2){
-            StartCoroutine(PlayerHop(2));
-        }
-        if(Input.GetKeyDown(KeyCode.Alpha3) && gameData.numPlayers >= 3){
-            StartCoroutine(PlayerHop(3));
-        }
-        if(Input.GetKeyDown(KeyCode.Alpha4) && gameData.numPlayers == 4){
-            StartCoroutine(PlayerHop(4));
+        for(int i = 0; i < 4; i++){
+            // if the player has already joined, allow them to hop
+            if(gameData.activatedPlayers[i]){
+                if(AnyButton(i+1)){
+                    StartCoroutine(PlayerHop(i+1));
+                }
+            }
         }
     }
 
@@ -85,7 +84,7 @@ public class MapSelect : MonoBehaviour
     void AddPlayerSprites(){
 
         for(int i = 0; i < 4; i++){
-            if(i < gameData.numPlayers){
+            if(gameData.activatedPlayers[i]){
                 playerSprites[i].gameObject.SetActive(true);
                 playerSprites[i].GetComponent<Image>().color = gameData.pColors[i];
             }else{
@@ -107,6 +106,8 @@ public class MapSelect : MonoBehaviour
         }
         mapImages[selectedMap].color = new Color(1f, 1f, 1f, 1f);
         mapImages[selectedMap].transform.localScale = new Vector3(1f, 1f, 1f);
+
+        changedMap = true;
     }
 
     void SelectMap(){
@@ -141,6 +142,10 @@ public class MapSelect : MonoBehaviour
         yield return new WaitForSeconds(0.1f);
         playerSprites[playerNum-1].transform.position = curPos;
         
+    }
+
+    bool AnyButton(int playerNum){
+        return Input.GetButtonDown("Start"+playerNum.ToString()) || Input.GetButtonDown("Jump"+playerNum.ToString()) || Input.GetButtonDown("Dash"+playerNum.ToString());
     }
 
 }

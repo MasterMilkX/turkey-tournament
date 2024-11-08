@@ -13,6 +13,7 @@ public class GameModeSelect : MonoBehaviour
     public int selectedMode = 0;
     private Image[] modeImages;
     private string modeText = "GameMode";
+    private bool changedMode = false;
 
     public int countdown = 20;  // countdown timer
     private Transform countdownText;    // countdown text
@@ -61,36 +62,36 @@ public class GameModeSelect : MonoBehaviour
     void Update(){
         // player 1 selects the game mode 
         // TODO: Change this to controller input
-        if(Input.GetKeyDown(KeyCode.LeftArrow)){
+
+        Debug.Log(Input.GetAxis("Hor1"));
+
+        if(Input.GetAxis("Hor1") < 0 && !changedMode){
             selectedMode -= 1;
             if(selectedMode < 0){
                 selectedMode = (modeText == "GameMode23") ? 1 : 2;
             }
             ChangeMode();
         }
-        else if(Input.GetKeyDown(KeyCode.RightArrow)){
+        else if(Input.GetAxis("Hor1") > 0 && !changedMode){
             selectedMode += 1;
             if(selectedMode > 1 && modeText == "GameMode23" || selectedMode > 2 && modeText == "GameMode4"){
                 selectedMode = 0;
             }
             ChangeMode();
+        }else if(Input.GetAxis("Hor1") == 0){
+            changedMode = false;
         }
-        else if(Input.GetKeyDown(KeyCode.Space)){
+        if(Input.GetButtonDown("Start1")){
             SelectMode();
         }
 
-         // if any input from the controller is detected, make the player hop
-        if(Input.GetKeyDown(KeyCode.Alpha1) && gameData.numPlayers >= 1){
-            StartCoroutine(PlayerHop(1));
-        }
-        if(Input.GetKeyDown(KeyCode.Alpha2) && gameData.numPlayers >= 2){
-            StartCoroutine(PlayerHop(2));
-        }
-        if(Input.GetKeyDown(KeyCode.Alpha3) && gameData.numPlayers >= 3){
-            StartCoroutine(PlayerHop(3));
-        }
-        if(Input.GetKeyDown(KeyCode.Alpha4) && gameData.numPlayers == 4){
-            StartCoroutine(PlayerHop(4));
+        for(int i = 0; i < 4; i++){
+            // if the player has already joined, allow them to hop
+            if(gameData.activatedPlayers[i]){
+                if(AnyButton(i+1)){
+                    StartCoroutine(PlayerHop(i+1));
+                }
+            }
         }
     }
 
@@ -98,7 +99,7 @@ public class GameModeSelect : MonoBehaviour
     void AddPlayerSprites(){
 
         for(int i = 0; i < 4; i++){
-            if(i < gameData.numPlayers){
+            if(gameData.activatedPlayers[i]){
                 playerSprites[i].gameObject.SetActive(true);
                 playerSprites[i].GetComponent<Image>().color = gameData.pColors[i];
             }else{
@@ -120,13 +121,14 @@ public class GameModeSelect : MonoBehaviour
         }
         modeImages[selectedMode].color = new Color(1f, 1f, 1f, 1f);
         modeImages[selectedMode].transform.localScale = new Vector3(1f, 1f, 1f);
+        changedMode = true;
     }
 
     void SelectMode(){
         gameData.gameMode = selectedMode;
         Debug.Log("Game Mode: " + selectedMode);
         // load the next scene
-        //UnityEngine.SceneManagement.SceneManager.LoadScene("MapSelect");
+        UnityEngine.SceneManagement.SceneManager.LoadScene("MapSelect");
     }
 
     // Countdown the player selection screen before moving to the next scene
@@ -150,6 +152,10 @@ public class GameModeSelect : MonoBehaviour
         yield return new WaitForSeconds(0.1f);
         playerSprites[playerNum-1].transform.position = curPos;
         
+    }
+
+    bool AnyButton(int playerNum){
+        return Input.GetButtonDown("Start"+playerNum.ToString()) || Input.GetButtonDown("Jump"+playerNum.ToString()) || Input.GetButtonDown("Dash"+playerNum.ToString());
     }
 
 }

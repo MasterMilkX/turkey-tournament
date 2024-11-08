@@ -14,4 +14,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/DemoLevel.unity
     guid: de735ce7f17874e3f9ba9120c775bf77
+  - enabled: 1
+    path: Assets/Scenes/MapSelect.unity
+    guid: da030c67d65ce49a39f12147502dbe17
   m_configObjects: {}

@@ -23,8 +23,10 @@ public class PlayerSelect : MonoBehaviour
 
     // Start is called before the first frame update
     void Start(){
-
+        
         gameData = GameObject.Find("GameData").GetComponent<GameData>();
+        gameData.NewRound();        // reset the game data for a new round starting with this screen
+
         pColors = gameData.pColors;
 
         if(GUI != null){
@@ -52,23 +54,25 @@ public class PlayerSelect : MonoBehaviour
     // Update is called once per frame
     void Update(){
         // check if any player has pressed the space key ( TODO: Change this to controller input)
+        /*
         if(Input.GetKeyDown(KeyCode.Space) && curPlayer < 4){
             ActivatePlayer();
         }
+        */
+        for(int i = 0; i < 4; i++){
+            if(Input.GetButtonDown("Start"+(i+1).ToString()) && !gameData.activatedPlayers[i]){
+                ActivatePlayer(i);
+            }
 
-        // if any input from the controller is detected, make the player hop
-        if(Input.GetKeyDown(KeyCode.Alpha1) && curPlayer >= 1){
-            StartCoroutine(PlayerHop(1));
+            // if the player has already joined, allow them to hop
+            if(gameData.activatedPlayers[i]){
+                if(AnyButton(i+1)){
+                    StartCoroutine(PlayerHop(i+1));
+                }
+            }
+
         }
-        if(Input.GetKeyDown(KeyCode.Alpha2) && curPlayer >= 2){
-            StartCoroutine(PlayerHop(2));
-        }
-        if(Input.GetKeyDown(KeyCode.Alpha3) && curPlayer >= 3){
-            StartCoroutine(PlayerHop(3));
-        }
-        if(Input.GetKeyDown(KeyCode.Alpha4) && curPlayer == 4){
-            StartCoroutine(PlayerHop(4));
-        }
+
     }
 
     // Makes all the players start with unknown until they are activated with the controllers
@@ -94,16 +98,20 @@ public class PlayerSelect : MonoBehaviour
     }
 
     // activates the player based on number
-    void ActivatePlayer(){
+    void ActivatePlayer(int playerNum){
         // change the sprite to the turkey and the status to "Joined"
-        playerSprites[curPlayer].GetComponent<Image>().sprite = turkeySprite;
-        Text status = playerStatus[curPlayer].GetComponent<Text>();
+        playerSprites[playerNum].GetComponent<Image>().sprite = turkeySprite;
+        Text status = playerStatus[playerNum].GetComponent<Text>();
         status.text = "READY!";
         status.fontSize = 48;
         status.color = new Color(255, 188, 0);
         curPlayer++;
         gameData.numPlayers = curPlayer;
-        gameData.activatedPlayers[curPlayer-1] = true;
+        gameData.activatedPlayers[playerNum] = true;
+    }
+
+    bool AnyButton(int playerNum){
+        return Input.GetButtonDown("Start"+playerNum.ToString()) || Input.GetButtonDown("Jump"+playerNum.ToString()) || Input.GetButtonDown("Dash"+playerNum.ToString());
     }
 
     // Countdown the player selection screen before moving to the next scene

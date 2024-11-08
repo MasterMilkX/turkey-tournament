@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -34,9 +35,10 @@ public class GameMasterScript : MonoBehaviour
     [Header("UI Properties")]
     public Transform GUI;
     private Transform GUIPanel;
-    private UnityEngine.UI.Text scoreText;
-    private List<UnityEngine.UI.Text> playerScoreText;
-    private UnityEngine.UI.Text timeText;
+    private Text scoreText;
+    private Text[] playerScoreText = new Text[4];
+    private Text timeText;
+    private Text pauseText;
 
     [Header("Key Controls")]
     // Keep these hardcoded so that a keyboard press can change it
@@ -51,7 +53,7 @@ public class GameMasterScript : MonoBehaviour
 
         // activate the players and set their colors
         for(int i = 0; i < 4; i++){
-            if(i < gameData.numPlayers){
+            if(gameData.activatedPlayers[i]){
                 player[i].gameObject.SetActive(true);
                 player[i].GetComponent<SpriteRenderer>().color = gameData.pColors[i];
                 player[i].GetComponent<TurkeyPlayer>().playerController = i+1;
@@ -66,28 +68,34 @@ public class GameMasterScript : MonoBehaviour
             // single player and coop mode have the same collaborative GUI
             if(gameMode == 0){
                 GUIPanel = GUI.Find("CoopGUI");
+                GUIPanel.gameObject.SetActive(true);
                 GUI.Find("VSGUI").gameObject.SetActive(false);
-                scoreText = GUIPanel.Find("Score").GetComponent<UnityEngine.UI.Text>();
-                timeText = GUIPanel.Find("Time").GetComponent<UnityEngine.UI.Text>();
+                scoreText = GUIPanel.Find("Score").GetComponent<Text>();
+                timeText = GUIPanel.Find("Time").GetComponent<Text>();
             } 
 
             // versus mode has different GUI
             else{
                 GUIPanel = GUI.Find("VSGUI");
+                GUIPanel.gameObject.SetActive(true);
                 GUI.Find("CoopGUI").gameObject.SetActive(false);
                 for(int i = 0; i < 4; i++){
-                    if (i < gameData.numPlayers){
-                        playerScoreText[i] = GUIPanel.Find("P" + (i+1) + "Score").GetComponent<UnityEngine.UI.Text>();
+                    playerScoreText[i] = GUIPanel.Find("P" + (i+1) + "Score").GetComponent<Text>();
+                    if (gameData.activatedPlayers[i]){
                         playerScoreText[i].gameObject.SetActive(true);
                         playerScoreText[i].color = gameData.pColors[i];
                     } else {
                         playerScoreText[i].gameObject.SetActive(false);
                     }
                 }
+                timeText = GUIPanel.Find("Time").GetComponent<Text>();
             }
 
             countdownText = GUI.Find("Countdown").GetComponent<Text>();
             countdownText.gameObject.SetActive(true);
+
+            pauseText = GUI.Find("PauseText").GetComponent<Text>();
+            pauseText.gameObject.SetActive(false);
         }
 
 
@@ -106,7 +114,7 @@ public class GameMasterScript : MonoBehaviour
 
         // reset the game
         if(Input.GetKeyDown(resetBtn)){
-            ResetGame();
+            ResetGame(true);
         }
 
         // check if the countdown is over
@@ -123,11 +131,16 @@ public class GameMasterScript : MonoBehaviour
     /// =============   GAME CONTROLS  ============= ///
 
     // completely resets the game
-    public void ResetGame(){
+    public void ResetGame(bool resetPos = false){
+        StopAllCoroutines();        // stop all coroutines in case they are running
+
         // reset the player positions
-        for(int i = 0; i < player.Count; i++){
-            player[i].position = playerPos[i].position;
+        if(resetPos){
+            for(int i = 0; i < player.Count; i++){
+                player[i].position = playerPos[i].position;
+            }
         }
+        
 
         // reset the scores
         globalScore = 0;
@@ -136,7 +149,6 @@ public class GameMasterScript : MonoBehaviour
         // reset the countdown
         timeCountDown = maxCountDown;
         StartCoroutine(CountDown());        // start the countdown
-
 
         // reset the feathers
         Transform[] allFeathSpawns = featherSpawns.GetComponentsInChildren<Transform>();
@@ -154,12 +166,14 @@ public class GameMasterScript : MonoBehaviour
         // pause the game
         Time.timeScale = 0;
         gameState = "Paused";
+        pauseText.gameObject.SetActive(true);
     }
 
     public void ResumeGame(){
         // resume the game
         Time.timeScale = 1;
         gameState = "Active";
+        pauseText.gameObject.SetActive(false);
     }
 
     // countdown timer
@@ -196,7 +210,7 @@ public class GameMasterScript : MonoBehaviour
         if(gameMode == 0){
             globalScore += 1;           // increase the global score
         }else if(gameMode == 1){
-            int player_num = Int32.Parse(player.Substring(player.Length - 1))-1;
+            int player_num = Int32.Parse(player.ElementAt(player.Length-1).ToString())-1;
             playerScore[player_num] += 1;       // increase the player's score
         }
     }
@@ -217,6 +231,7 @@ public class GameMasterScript : MonoBehaviour
             }else{
                 slope = (0-maxFeatherSpawnTime) / maxCountDown;
                 spawnTime = (slope * (maxCountDown - timeCountDown)) + maxFeatherSpawnTime;
+                spawnTime = Math.Max(spawnTime, 0.25f);
             }
             
             yield return new WaitForSeconds(spawnTime);
@@ -256,8 +271,8 @@ public class GameMasterScript : MonoBehaviour
             scoreText.text = "Score: " + globalScore;
         } else if(gameMode == 1){
             for(int i = 0; i < 4; i++){
-                if (i < gameData.numPlayers){
-                    playerScoreText[i].text = "P" + (i+1) + " Score: " + playerScore[i];
+                if (gameData.activatedPlayers[i]){
+                    playerScoreText[i].text = "P" + (i+1) + ": " + playerScore[i];
                 }
             }
         }
